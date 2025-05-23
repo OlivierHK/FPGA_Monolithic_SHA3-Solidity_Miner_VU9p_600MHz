@@ -1,5 +1,5 @@
 # FPGA_Monolithic_SHA3-Solidity_Miner_VU9p_600MHz_14.4GHs
-##Introduction
+## Introduction
 
 This project is a Full VHDL and Optimized Monolithic Implementation of the Solidity-SHA3 algorithm used by several POW Crypto currency (0xBitcoin, BNBTC, Etica,...).
 
@@ -21,7 +21,7 @@ A PCIe interface can later be implemented to get rid of the UART interface and t
 
 
 
-##Simulate the design
+## Simulate the design
 
 Several simple testbenches had been scattered to test different part of the design.
 They are ModelSim compatible. Remember to compile the Xilinx Simulation IP libraries and import them in ModelSim to simulate the design.
@@ -34,7 +34,7 @@ in order to speed-up simulation time, put `constant SIMULATION: boolean:= true;`
 - *alto_top_tb.vhd* to simulate the whole design. Very time/ressource consumming as a whole UART frame input/output is generated if simulation mode is OFF.  
 
 
-##Build the .bit file
+## Build the .bit file
 
 The project and Scripts been targeted for Virtex Ultrascale+ VU9p (XCVU9P-flga2104-2-i).
 Best to build under Linux (faster) and with Vivado 2023.1
