@@ -1,0 +1,67 @@
+C:/Users/alphus89/Desktop/Project/Alto-Ultra/src/UART/uart_rx.vhd {1 {vcom -work work -2002 -explicit -stats=none C:/Users/alphus89/Desktop/Project/Alto-Ultra/src/UART/uart_rx.vhd
+Model Technology ModelSim Microsemi vcom 10.5c Compiler 2016.07 Jul 21 2016
+-- Loading package STANDARD
+-- Loading package TEXTIO
+-- Loading package std_logic_1164
+-- Loading package NUMERIC_STD
+-- Compiling entity UART_RX
+-- Compiling architecture RTL of UART_RX
+-- Loading package MATH_REAL
+-- Loading entity UART_CLK_DIV
+-- Loading entity UART_PARITY
+
+} {} {}} C:/Users/alphus89/Desktop/Project/Alto-Ultra/src/UART/uart_debouncer.vhd {1 {vcom -work work -2002 -explicit -stats=none C:/Users/alphus89/Desktop/Project/Alto-Ultra/src/UART/uart_debouncer.vhd
+Model Technology ModelSim Microsemi vcom 10.5c Compiler 2016.07 Jul 21 2016
+-- Loading package STANDARD
+-- Loading package TEXTIO
+-- Loading package std_logic_1164
+-- Loading package NUMERIC_STD
+-- Compiling entity UART_DEBOUNCER
+-- Compiling architecture RTL of UART_DEBOUNCER
+
+} {} {}} C:/Users/alphus89/Desktop/Project/Alto-Ultra/src/UART/uart_tx.vhd {1 {vcom -work work -2002 -explicit -stats=none C:/Users/alphus89/Desktop/Project/Alto-Ultra/src/UART/uart_tx.vhd
+Model Technology ModelSim Microsemi vcom 10.5c Compiler 2016.07 Jul 21 2016
+-- Loading package STANDARD
+-- Loading package TEXTIO
+-- Loading package std_logic_1164
+-- Loading package NUMERIC_STD
+-- Compiling entity UART_TX
+-- Compiling architecture FULL of UART_TX
+-- Loading package MATH_REAL
+-- Loading entity UART_CLK_DIV
+-- Loading entity UART_PARITY
+
+} {} {}} C:/Users/alphus89/Desktop/Project/Alto-Ultra/src/UART/uart_clk_div.vhd {1 {vcom -work work -2002 -explicit -stats=none C:/Users/alphus89/Desktop/Project/Alto-Ultra/src/UART/uart_clk_div.vhd
+Model Technology ModelSim Microsemi vcom 10.5c Compiler 2016.07 Jul 21 2016
+-- Loading package STANDARD
+-- Loading package TEXTIO
+-- Loading package std_logic_1164
+-- Loading package NUMERIC_STD
+-- Loading package MATH_REAL
+-- Compiling entity UART_CLK_DIV
+-- Compiling architecture RTL of UART_CLK_DIV
+
+} {} {}} C:/Users/alphus89/Desktop/Project/Alto-Ultra/src/UART/uart_parity.vhd {1 {vcom -work work -2002 -explicit -stats=none C:/Users/alphus89/Desktop/Project/Alto-Ultra/src/UART/uart_parity.vhd
+Model Technology ModelSim Microsemi vcom 10.5c Compiler 2016.07 Jul 21 2016
+-- Loading package STANDARD
+-- Loading package TEXTIO
+-- Loading package std_logic_1164
+-- Loading package NUMERIC_STD
+-- Compiling entity UART_PARITY
+-- Compiling architecture FULL of UART_PARITY
+
+} {} {}} C:/Users/alphus89/Desktop/Project/Alto-Ultra/src/UART/uart.vhd {1 {vcom -work work -2002 -explicit -stats=none C:/Users/alphus89/Desktop/Project/Alto-Ultra/src/UART/uart.vhd
+Model Technology ModelSim Microsemi vcom 10.5c Compiler 2016.07 Jul 21 2016
+-- Loading package STANDARD
+-- Loading package TEXTIO
+-- Loading package std_logic_1164
+-- Loading package NUMERIC_STD
+-- Loading package MATH_REAL
+-- Compiling entity UART
+-- Compiling architecture RTL of UART
+-- Loading entity UART_CLK_DIV
+-- Loading entity UART_DEBOUNCER
+-- Loading entity UART_RX
+-- Loading entity UART_TX
+
+} {} {}}
