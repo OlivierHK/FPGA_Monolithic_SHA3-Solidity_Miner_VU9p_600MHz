@@ -1,7 +1,4 @@
 # FPGA_Monolithic_SHA3-Solidity_Miner_VU9p_600MHz_14.4GHs
-
-
-
 ##Introduction
 
 This project is a Full VHDL and Optimized Monolithic Implementation of the Solidity-SHA3 algorithm used by several POW Crypto currency (0xBitcoin, BNBTC, Etica,...).
