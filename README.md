@@ -39,9 +39,9 @@ in order to speed-up simulation time, put `constant SIMULATION: boolean:= true;`
 The project and Scripts been targeted for Virtex Ultrascale+ VU9p (XCVU9P-flga2104-2-i).
 Best to build under Linux (faster) and with Vivado 2023.1
 
-1- Open Vivado GUI and run *Setup_Project.Tcl*.
-2- Once project Loaded, select "Run Synthesys" under the Vivado GUI.
-3- Once Synthesis completed, open the Design by selecting "open Synthesised Design".
-4- Once Synthesised project opened, select "Tools/Run Tcl Sript" and open *Place_and_Opt.Tcl*.
-5- Wait...(up to 24Hours, depending on your configuration).
-6- .bit file can be found in the root folder of the project.
+1. Open Vivado GUI and run *Setup_Project.Tcl*.
+2. Once project Loaded, select "Run Synthesys" under the Vivado GUI.
+3. Once Synthesis completed, open the Design by selecting "open Synthesised Design".
+4. Once Synthesised project opened, select "Tools/Run Tcl Sript" and open *Place_and_Opt.Tcl*.
+5. Wait...(up to 24Hours, depending on your configuration).
+6. .bit file can be found in the root folder of the project.
