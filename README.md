@@ -10,13 +10,13 @@ This project is implementing 24 Solidity-SHA3 Cores, filling up the VU9P at 98,2
 This design is implementing complex Reset mechanism and Xilinx Sysmon monitoring, coupled to the novative "Ping-Pong" dual-MMCME core frequency Sweep-Up/Down to avoid any damage on the FPGA by sudden power Dump or Over-Temperature.
 
 
-Communication with the computer hosting the miner software is done via simple UART protocol (kudos to Jakub Cabal for his SIMPLE UART FOR FPGA design). 
-An input UART frame contains the message header to be hashed, and miner configuration (Core frequency, Voltage/Temperature shutdown values,...).
-An output UART frame contains a winning Nonce (Golden Ticket), and status of the FPGA.
+Communication with the computer hosting the miner software is done via simple UART protocol (kudos to Jakub Cabal for his SIMPLE UART FOR FPGA design): 
+- An input UART frame contains the message header to be hashed, and miner configuration (Core frequency, Voltage/Temperature shutdown values,...).
+- An output UART frame contains a winning Nonce (Golden Ticket), and status of the FPGA.
 
-An extra I2C interface has been added for the Arduino/PMIC present on the Atlo platform to check FPGA's Sysmon status.
+- An extra I2C interface has been added for the Arduino/PMIC present on the Atlo platform to check FPGA's Sysmon status.
 
-A PCIe interface can later be implemented to get rid of the UART interface and to reduce overall latency.
+- A PCIe interface can later be implemented to get rid of the UART interface and to reduce overall latency.
 
 
 
@@ -28,10 +28,10 @@ They are ModelSim compatible. Remember to compile the Xilinx Simulation IP libra
 
 in order to speed-up simulation time, put `constant SIMULATION: boolean:= true;` in MyPackage.vhd.
 
-- *Keccak256_core_tb.vhd* to simulate Solidity-SHA3 single hashing core.
-- *PIPELINE_TOP_MODULE_tb.vhd* to simulate the forward/backward parametrable accross-the-chip data spreading pipelines.
-- *CLOCK_MODULE_tb.vhd* to simulate the "Ping-Pong" dual-MMCME on-the-fly reconfiguration for core frequency smooth Sweep-up and Sweep-Down.
-- *alto_top_tb.vhd* to simulate the whole design. Very time/ressource consumming as a whole UART frame input/output is generated if simulation mode is OFF.  
+- `Keccak256_core_tb.vhd` to simulate Solidity-SHA3 single hashing core.
+- `PIPELINE_TOP_MODULE_tb.vhd` to simulate the forward/backward parametrable accross-the-chip data spreading pipelines.
+- `CLOCK_MODULE_tb.vhd` to simulate the "Ping-Pong" dual-MMCME on-the-fly reconfiguration for core frequency smooth Sweep-up and Sweep-Down.
+- `alto_top_tb.vhd` to simulate the whole design. Very time/ressource consumming as a whole UART frame input/output is generated if simulation mode is OFF.  
 
 
 ## Build the .bit file
@@ -39,8 +39,8 @@ in order to speed-up simulation time, put `constant SIMULATION: boolean:= true;`
 The project and Scripts been targeted for Virtex Ultrascale+ VU9p (XCVU9P-flga2104-2-i).
 Best to build under Linux (faster) and with Vivado 2023.1
 
-1. Open Vivado GUI and run *Setup_Project.Tcl*.
-2. Once project Loaded, select "Run Synthesys" under the Vivado GUI.
+1. run `Create_Project.Tcl` under Vivado Tcl mode.
+2. open vivado and load project with the generated .xpr, and "Run Synthesys".
 3. Once Synthesis completed, open the Design by selecting "open Synthesised Design".
 4. Once Synthesised project opened, select "Tools/Run Tcl Sript" and open *Place_and_Opt.Tcl*.
 5. Wait...(up to 24Hours, depending on your configuration).
