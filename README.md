@@ -47,7 +47,7 @@ Best to build under Linux (faster) and with Vivado 2023.1
 6. Generated .bit file can be found in the root folder of the project.
 
 ## design Summary
-###Design utilisation report
+### Design utilisation report
 ```
 SLR CLB Logic and Dedicated Block Utilization
 ---------------------------------------------
@@ -80,7 +80,7 @@ SLR CLB Logic and Dedicated Block Utilization
 +----------------------------+--------+--------+--------+--------+--------+--------+
 * Note: Available Control Sets based on CLB Registers / 8
 ```
-###Timing summary
+### Timing summary
 ```
 ------------------------------------------------------------------------------------------------
 | Design Timing Summary
