@@ -26,7 +26,7 @@ Communication with the computer hosting the miner software is done via simple UA
 Several simple testbenches had been scattered to test different part of the design.
 They are ModelSim compatible. Remember to compile the Xilinx Simulation IP libraries and import them in ModelSim to simulate the design.
 
-in order to speed-up simulation time, put `constant SIMULATION: boolean:= true;` in `MyPackage.vhd`.
+in order to speed-up simulation time, put `constant SIMULATION: boolean:= true;`, and `constant SIMULATION_XOR5: boolean:= true;` in `MyPackage.vhd`.
 
 - `Keccak256_core_tb.vhd` to simulate Solidity-SHA3 single hashing core.
 - `PIPELINE_TOP_MODULE_tb.vhd` to simulate the forward/backward parametrable accross-the-chip data spreading pipelines.
