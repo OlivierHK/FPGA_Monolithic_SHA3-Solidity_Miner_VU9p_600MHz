@@ -1,10 +1,15 @@
+# May 27th 2025.
+#This script will route the design at 600MHZ.
+# if using -ultrathreads in the place_design, you may go even higher if your are lucky (~605MHZ)
+
+#set the TcL script location as the project root folder.
 set dispScriptFile [file normalize [info script]]
 set ScriptFolder [file dirname $dispScriptFile]
 
 cd $ScriptFolder/.
 
 # Post Place PhysOpt Looping
-set NLOOPS 2 
+set NLOOPS 5 
 set TNS_PREV 0
 
  
@@ -22,14 +27,14 @@ set_clock_uncertainty 0.000 [get_clocks clk_500M_1]
 
 ################################################## Place #######################################################################
 
-place_design -directive ExtraNetDelay_high -timing_summary
+place_design -directive ExtraNetDelay_high  -ultrathreads -timing_summary
 write_checkpoint -force post_place.dcp
 
 
 
 ################################################## Post-Place optimization #######################################################
 
-for {set i 0} {$i < $NLOOPS} {incr i} { 
+for {set i 0} {$i < 5} {incr i} { 
 	if {[get_property SLACK [get_timing_paths ]] >= 0} {break}; #stop if timing is met
 	phys_opt_design -directive AggressiveExplore
 
@@ -48,25 +53,24 @@ set_clock_uncertainty 0 [get_clocks clk_500M_1]
 
 ################################################## Routing #######################################################################
 
-route_design -directive Explore -tns_cleanup
+route_design -directive AggressiveExplore -tns_cleanup
 write_checkpoint -force post_route.dcp
 
 
 
 ############################################### Post-Route #######################################################################
 
-for {set i 0} {$i < $NLOOPS} {incr i} { 
-	if {[get_property SLACK [get_timing_paths ]] >= 0} {break}; #stop if timing is met
-	phys_opt_design -directive AggressiveExplore;
+for {set i 0} {$i < 5} {incr i} { 
 	if {[get_property SLACK [get_timing_paths ]] >= 0} {break}; #stop if timing is met
 	place_design -post_place_opt -timing_summary;# For each of the top few critical paths with timing violations, placer tries moving critical cells to improve delay. Any placement changes will result in unrouted connections, need a route_design after.
 	route_design -directive Explore -tns_cleanup
-	if {[get_property SLACK [get_timing_paths ]] >= 0} {break}; #stop if timing is met
 	phys_opt_design -directive AggressiveExplore; #phys_opt_design at post-route stage will reroute any nets that might have been unrouted.
+	route_design -tns_cleanup ;## only invokes the TNS cleanup phase of the router and does not affect WNS (TNS cleanup is re-entrant).  
+	#route_design -directive Explore -tns_cleanup
+	#phys_opt_design -directive AggressiveExplore
 }
 write_checkpoint -force post_route_opt.dcp
 
 
 ############################################### write Bitstream ##################################################################
 write_bitstream -force Alto9p.bit
-
