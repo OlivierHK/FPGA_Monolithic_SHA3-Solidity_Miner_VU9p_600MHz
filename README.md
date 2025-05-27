@@ -5,7 +5,7 @@ This project is a Full VHDL and Optimized Monolithic Implementation of the Solid
 
 It is designed to run on a XCVU9P-flga2104-2-i, for my Home-Brew Alto Platform, but can easily be updated to other Virtex Ultrascale+ (up to XCVU13p) or other plaform (like BCU1525).
 
-This project is implementing 24 Solidity-SHA3 Cores, filling up the VU9P at 98,22% and closing timing at 600MHz. As Cores frequency can be glitched-free sweep-up and Down, the design can be overclocked up to ~700MHz, depending on your silicon luck. With excellent cooling system, a max of 16.5GHs/s Hashrate had been tested and validated.
+This project is implementing a Floorplanned 24 Solidity-SHA3 Cores, filling up the VU9P at 99% and closing timing at 600MHz. As Cores frequency can be glitched-free sweep-up and Down, the design can be overclocked up to ~700MHz, depending on your silicon luck. With excellent cooling system, a max of 16.5GHs/s Hashrate had been tested and validated.
 
 This design is implementing complex Reset mechanism and Xilinx Sysmon monitoring, coupled to the novative "Ping-Pong" dual-MMCM core frequency Sweep-Up/Down to avoid any damage on the FPGA by sudden power Dump or Over-Temperature.
 
