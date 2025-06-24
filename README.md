@@ -112,4 +112,5 @@ i_CLK_100M          {0.000 5.000}        10.000          100.000
 ```
 ### Post Place And Route Floorplan:
 
-![Uploading PandR_floorplanning.jpg…]()
+![PandR_floorplanning](https://github.com/user-attachments/assets/bdbfb172-5b4b-48a8-bd91-fc06302763dd)
+
