@@ -47,7 +47,7 @@ Best to build under Linux (faster) and with Vivado 2023.1
 6. Generated .bit file can be found in the root folder of the project.
 
 ## design Summary
-### Design utilisation report
+### Design utilisation report:
 ```
 SLR CLB Logic and Dedicated Block Utilization
 ---------------------------------------------
@@ -80,7 +80,7 @@ SLR CLB Logic and Dedicated Block Utilization
 +----------------------------+--------+--------+--------+--------+--------+--------+
 * Note: Available Control Sets based on CLB Registers / 8
 ```
-### Timing summary
+### Timing summary:
 ```
 ------------------------------------------------------------------------------------------------
 | Design Timing Summary
@@ -110,3 +110,6 @@ i_CLK_100M          {0.000 5.000}        10.000          100.000
       clk_500M_1    {0.000 0.833}        1.667           600.000         
   CLK_MMCME_1_12M   {0.000 41.667}       83.333          12.000
 ```
+### Post Place And Route Floorplan:
+
+![Uploading PandR_floorplanning.jpg…]()
