@@ -1,5 +1,5 @@
 # FPGA_Monolithic_SHA3-Solidity_Miner_VU9p_600MHz_14.4GHs
-## Introduction
+## Summary
 
 This project is a Full VHDL and Optimized Monolithic Implementation of the Solidity-SHA3 algorithm used by several POW Crypto currency (0xBitcoin, BNBTC, Etica,...).
 
@@ -18,8 +18,47 @@ Communication with the computer hosting the miner software is done via simple UA
 
 - A PCIe interface can later be implemented to get rid of the UART interface and to reduce overall latency.
 
+## Project Pinout
+
+The Project only consist of a few IO pins, all on +1.8V LVCMOS standard:
+
+- An input 100MHz LVCMOS18 clock from external Oscillator IC.
+- An input LVCMOS18 Active-Low Reset pin controlled by the Arduino.
+- An LVCMOS18 UART Tx/Rx interface pair.
+- An LVCMOS18 I2C interface (SDA/SCL) for Arduino to communicate with the FPGA's Sysmon module.
+- An output LVCMOS18 Bye array for debugging (driving LEDs outside).
+
+```
+set_property PACKAGE_PIN BC10 [get_ports i_CLK_100M]
+set_property IOSTANDARD LVCMOS18 [get_ports i_CLK_100M]
+
+set_property PACKAGE_PIN BF11 [get_ports i_RST_N]
+set_property IOSTANDARD LVCMOS18 [get_ports i_RST_N]
+
+set_property PACKAGE_PIN BF10 [get_ports i_UART_RXD]
+set_property IOSTANDARD LVCMOS18 [get_ports i_UART_RXD]
+
+set_property PACKAGE_PIN BE10 [get_ports o_UART_TXD]
+set_property IOSTANDARD LVCMOS18 [get_ports o_UART_TXD]
+
+set_property PACKAGE_PIN BC35 [get_ports {o_DEBUG_PORT[7]}]
+set_property PACKAGE_PIN BC36 [get_ports {o_DEBUG_PORT[6]}]
+set_property PACKAGE_PIN BA36 [get_ports {o_DEBUG_PORT[5]}]
+set_property PACKAGE_PIN BA37 [get_ports {o_DEBUG_PORT[4]}]
+set_property PACKAGE_PIN BF34 [get_ports {o_DEBUG_PORT[3]}]
+set_property PACKAGE_PIN BF35 [get_ports {o_DEBUG_PORT[2]}]
+set_property PACKAGE_PIN BF36 [get_ports {o_DEBUG_PORT[1]}]
+set_property PACKAGE_PIN BF27 [get_ports {o_DEBUG_PORT[0]}]
+
+set_property IOSTANDARD LVCMOS18 [get_ports {o_DEBUG_PORT[*]}]
 
 
+set_property PACKAGE_PIN AP18 [get_ports io_i2c_sclk]
+set_property IOSTANDARD LVCMOS18 [get_ports io_i2c_sclk]
+
+set_property PACKAGE_PIN AP17 [get_ports io_i2c_sda]
+set_property IOSTANDARD LVCMOS18 [get_ports io_i2c_sda]
+```
 
 ## Simulate the design
 
