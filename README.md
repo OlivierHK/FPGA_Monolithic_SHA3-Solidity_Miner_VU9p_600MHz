@@ -57,6 +57,7 @@ The Top module is self-descripting and is showing all the sub-functions of the d
                      r_alarm_vector(4) or r_alarm_vector(5)    ;
   ```
 
+As a top diagram:
 ![system_diagram](https://github.com/user-attachments/assets/0b91418f-5d8f-4593-be16-571b43f89fda)
 
 
