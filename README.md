@@ -18,6 +18,48 @@ Communication with the computer hosting the miner software is done via simple UA
 
 - A PCIe interface can later be implemented to get rid of the UART interface and to reduce overall latency.
 
+
+## System Diagram and Hierarchy
+
+The Top module is self-descripting and is showing all the sub-functions of the design:
+
+- `UART.vhd` is responsible to intercept UART packet and generate a Byte of it if valid.
+- `RX_Byte_decoder_FSM.vhd` concatenate UART_Rx bytes into a full 767-bits header to be hashed and decode data for clock fequency change command, or information request, if needed.
+- `TX_Byte_decoder_FSM.vhd` concatenate Golden nonce with Status/information (if requested), and sent it by Byte to the UART_TX module.
+- `mem_Rx.vhd` and `mem_Tx.vhd` are wrapper of DP_RAM that stores the Header and the golden_nonce.
+- `HASH_FSM.vhd` sequence the receival of a new Header, then send it to the cores by chunk of 8-bits and triggering the hashing start. it also sequence the receival of a golden_nonce found and trigger its sending back to the computer.
+- `PIPELINE_MODULE.vhd` are D flip-flop pipeline (fixed at 4), to spread signals accross all the FPGA, to the cores. The placer will help to spread them heavenly. There is 2 sub-modules: Forward and Backward one.
+- `SHA3_Solidity_core_x.vhd` are duplicated core module (x24 for VU9P), carrefully floorplanned, that will reconstruct the header, add a starting nonce, and CDC the whole to the high-frequency area where it will be hashed. Every fast clock cycle give a nonce++. if the digested Hash have sufficent leading "0", the nonce is recovered, CDC to the fixed slow-frequency clock area and send back to the HASH_FSM.vhd module via the PIPELINE_MODULE.vhd. sub-modules and complete descrition is found later.
+
+- `clock_module.vhd` take control of generating all the clock of the design. it takes 100MHz from the on-board oscillator chip and generate out via MMCM a slow 12MHz fixed system clock, and a glitch-free variable 100MHz-800MHz high-speed clock for the hashing cores. Sub-Modules and complete descrition is found later.
+- `RST_Sync.vhd` is taking care of generating all the FPGA's internal reset signals. it also have the ability to shutdown automatically the high-speed core clock and reset the FPGA if any protection or alarm is ttiggered. its complete descrition is found later.
+- `UART_WATCHDOG.vhd` is a running counter checking UART_Rx signals. if no signal received after a programmed period (~2 minutes), it will trigger the fast core clock to shutdown to save energy.
+- `system_management.vhd` is a wrapper to call the x3 Sysmon IP modules of the FPGA (1 per SLR). it can be read by the outside world via the I2C bus.
+- `MyPackage.vhd` is a set of constants and variables than can be modified to tune the project or to fit other Hashing algorithms. Comments inside the file are self-explaining in case of modification.
+
+- The Debug_port can be assigned to any signal (slower or ASYNC is better, for timing/routing concern), and will drive the outside LEDs of the mezannine card. In this design, it has been assigned as:
+  ```
+  o_DEBUG_PORT(7) <= r_header_wr_en                             ;
+  o_DEBUG_PORT(6) <= i_UART_RXD                                 ;
+  o_DEBUG_PORT(5) <= r_SYNCED_nRST_12M                          ;
+  o_DEBUG_PORT(4) <= r_SYNCED_nRST_500M_SYNC_12MZ               ;               
+
+  if(r_timeout_UART_trig = '1') then 
+      o_DEBUG_PORT(3) <= '1'                                    ; --latch timeout watchdog LED
+  elsif (i_UART_RXD= '0') then    
+      o_DEBUG_PORT(3) <= '0'                                    ; --clear timeout watchdog LED
+  end if;
+                
+  o_DEBUG_PORT(2) <= r_CLK_status( 19) AND r_CLK_status(17)    ; --MMCM2_1 AND MMCM2_0 locked
+  o_DEBUG_PORT(1) <= r_CLK_status(  3)                         ; --MMCM1 locked
+  o_DEBUG_PORT(0) <= r_alarm_vector(0) or r_alarm_vector(1) or
+                     r_alarm_vector(2) or r_alarm_vector(3) or
+                     r_alarm_vector(4) or r_alarm_vector(5)    ;
+  ```
+
+![system_diagram](https://github.com/user-attachments/assets/0b91418f-5d8f-4593-be16-571b43f89fda)
+
+
 ## Project Pinout
 
 The Project only consist of a few IO pins, all on +1.8V LVCMOS standard:
