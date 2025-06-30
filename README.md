@@ -19,7 +19,7 @@ Communication with the computer hosting the miner software is done via simple UA
 - A PCIe interface can later be implemented to get rid of the UART interface and to reduce overall latency.
 
 
-## System Diagram and Hierarchy
+## Functionnal Diagram and Hierarchy
 
 The Top module is self-descripting and is showing all the sub-functions of the design:
 
@@ -60,6 +60,197 @@ The Top module is self-descripting and is showing all the sub-functions of the d
 As a top diagram:
 ![system_diagram](https://github.com/user-attachments/assets/0b91418f-5d8f-4593-be16-571b43f89fda)
 
+
+## Reset Specification
+
+### Reset concept and propagation
+
+- All nRESET design. No High level reset. Done with SysCLK (12MHz). All Async reset design for proper init when FPGA power ON.
+- Global reset and wake up done on MMCM0 and MMCM1 locking and external reset.
+- Reset signal from outside (ARDUINO) to put the FPGA under reset:
+  - Trigger first a shutdown for Hash Clock. Hash clock forced to sweep down to 100MHz.
+  - Then reset the module under Hash Clock once shut down finished.
+  - Then, All SysCLK(12MHz) module are put in reset after 16 clock cycle (time for the reset signal to propagate to the chip). Clock FSM is put under reset.
+- SYSMON alarm will trigger a shutdown command to the Hash Clock FSM.
+- 2 Minutes without receiving UART signal will trigger a shutdown command to the Hash Clock FSM.
+
+### Reset FSM diagram
+
+![Reset_Sync](https://github.com/user-attachments/assets/8951ee25-84e0-4e59-a7eb-429b98335002)
+![Reset_FSM_Diagram](https://github.com/user-attachments/assets/7ac16a6e-dbd1-4258-8113-6791ef99262b)
+
+
+## Clocking specification
+### Clocking Architecture:
+
+x3 MMCM are used: 
+- MMCME0:   100MHz.
+- MMCME1:   120Mhz, 12MHz.
+- MMCME2_x: 100-800MHz.
+  
+
+=> Low Bandwith cleans input jitter the best.
+
+=> High Bandwidth reduce output jitter, but increase phase noise.
+
+Clocking Diagram:
+
+![Clocking_architecture](https://github.com/user-attachments/assets/119de5c7-5bf4-424c-94e5-227b2185118b)
+
+### Clocking FSM:
+
+Glitch-free Frequency Sweep-Up/Sweep-Down:
+- Just need to send command to the FSM.
+- If a MMCM won’t lock (or a DRP writing), the FSM timeout and return Idle. Last Frequency out remain last valid.
+- "Shutdown" trigger a return to lower frequency.
+- FSM Status registers should be read for reset/shutdown.
+- Ramp-up/Down done by Ping-Ponging MMCM via glitch-free BUFGMUX_1 Module.
+
+
+Simulation  shows a MMCMLock time up of ~12us:
+- Timeout counter for DRP_RDY and MMCM_Locked set to 1ms. (MyPackage.vhd).
+- Cooltime between two CMD is set to 150us. (MyPackage.vhd).
+
+- After a reset, it is MMCM2_0 that is powered fist, at default value (100MHz).
+- MMCM MUX Switch happen in S_WAIT_MMCM_LOCK, once the MMCM have locked.
+- MMCM are put in reset only when DRP is accessed. Power used is 100mW.
+
+![Clocking_FSM](https://github.com/user-attachments/assets/465f81c2-291e-443d-87a6-508f22a42ee5)
+
+### Clocking ROM_DRP:
+
+- MMCM should be able to generate a Frequency Range of 100MHz~800MHz.
+- Delta set at 5MHz.
+- Can fit on a 0xFF address size ROM, as need (800-100)/5= 140 Steps.
+- Each step need to write 11 DRP registers (XAP888). DRP address is on 2 Bytes. Need 16+8= 24bits memory data size.
+-  ROM_ADDRESS_RANGE : 0x[F.F.F].
+
+
+   ![Clocking_ROM_DRP](https://github.com/user-attachments/assets/2dc73b7f-7b3a-4537-a8b0-a4dd0c949085)
+
+
+   
+## Sysmon specification
+
+Using Vivado's IP Wizzard to generate the Sysmon module:
+  - All SLR sysmon enable.
+  - Read by extenal I2C only.
+  - Alarm will trigger shutdown clock. Will be latched and reported to the Arduino as well as the Miner App via UART.
+  - Measure VCCint, VCCAux, and Temperature on Main SLR Sysmon.
+  - Measure VCCINT and Temperature on other slave SLR.
+
+
+## UART Message Format
+### UART Receiving message:
+
+The received message is fixed and have a length of 736-Bits (92 Bytes).
+```
+|+---------------+-----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+---+---+---+---+---+---+---+---+---+----+
+| D-Word offset || Bit |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |   |   |   |   |   |   |   |   |   |    |
++---------------++-----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+---+---+---+---+---+---+---+---+---+----+
+|               || 31  | 30 | 29 | 28 | 27 | 26 | 25 | 24 | 23 | 22 | 21 | 20 | 19 | 18 | 17 | 16 | 15 | 14 | 13 | 12 | 11 | 10 | 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0  |
++---------------++-----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+---+---+---+---+---+---+---+---+---+----+
+| 0             ||                                                                             Header                                                                    |
++---------------++-----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+---+---+---+---+---+---+---+---+---+----+
+| 1             ||                                                                             Header                                                                    |
++---------------++-----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+---+---+---+---+---+---+---+---+---+----+
+| ...           ||                                                                               ...                                                                     |
++---------------++-----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+---+---+---+---+---+---+---+---+---+----+
+| 19            ||                                                                             Header                                                                    |
++---------------++-----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+---+---+---+---+---+---+---+---+---+----+
+| 20            ||                                                                    Starting_Nonce_Higher_DW                                                           |
++---------------++-----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+---+---+---+---+---+---+---+---+---+----+
+| 21            ||                                                                     Starting_Nonce_Lower_DW                                                           |
++---------------++-----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+---+---+---+---+---+---+---+---+---+----+
+| 22            ||                                          Trailing “Zeros”                                                            |          FREQUENCY_CMD         |
++---------------++-----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+---+---+---+---+---+---+---+---+---+----+
+| 23            ||                                                   Reserved                                                                                   |  CMD   |
++---------------++-----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+---+---+---+---+---+---+---+---+---+----+
+```
+- UART Command (`CMD`):
+```
+00b: GET_READBACK_INFO.
+01b: NEW_HEADER.
+10b: NEW_FREQUENCY_REQUEST.
+```
+- `FREQUENCY_CMD`:
+```
+0x00: 100MHz
+0x01: 105MHz
+...
+0x8A: 795MHz
+0x8B: 800MHz
+```
+- `Nonce`: 64-Bits Nonce from the Miner App.
+- `Header`:608-Bits Header from Miner App.
+
+### UART Sending message:
+
+The message sent is fixed, automatic when a Nonce is found, and have a length of 320-Bits (40 Bytes):
+```
+|+---------------+-----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+---+---+---+---+---+---+---+---+---+----+
+| D-Word offset || Bit |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |   |   |   |   |   |   |   |   |   |    |
++---------------++-----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+---+---+---+---+---+---+---+---+---+----+
+|               || 31  | 30 | 29 | 28 | 27 | 26 | 25 | 24 | 23 | 22 | 21 | 20 | 19 | 18 | 17 | 16 | 15 | 14 | 13 | 12 | 11 | 10 | 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0  |
++---------------++-----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+---+---+---+---+---+---+---+---+---+----+
+| 0             ||                                                                            CLOCK_STATUS                                                               |
++---------------++-----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+---+---+---+---+---+---+---+---+---+----+
+| 1             ||        ALARM_FLAG       | STATUS  |                                         Reserved                                                                  |
++---------------++-----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+---+---+---+---+---+---+---+---+---+----+
+| ...           ||                                                                               ...                                                                     |
++---------------++-----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+---+---+---+---+---+---+---+---+---+----+
+| 7             ||                                                                             Reserved                                                                  |
++---------------++-----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+---+---+---+---+---+---+---+---+---+----+
+| 8             ||                                                                      Golden_Nonce_Higher_DW                                                           |
++---------------++-----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+---+---+---+---+---+---+---+---+---+----+
+| 9             ||                                                                       Golden_Nonce_Lower_DW                                                           |
++---------------++-----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+---+---+---+---+---+---+---+---+---+----+
+```
+- `CLOCK_STATUS`:
+  ```
+  0x00:               '0', as MMCM0 is laways running
+  0x02:               locked_MMCME0 (active-High).
+  0x04:               nreset_MMCMC1 (active-Low).
+  0x08:               locked_MMCME1 (active-High).
+  0x16-0x8000:        Reserved.
+  0x10000:            nreset_MMCMC2_0 (active-Low).
+  0x20000:            locked_MMCM2_0 (active-High).
+  0x40000:            nreset_MMCMC2_1 (active-Low).
+  0x80000:            locked_MMCM2_1 (active-High).
+  0x100000-0x8000000: NOW_FREQ_CMD.
+  0x10000000:         Clock_FSM_busy (active-High).
+  0x20000000:         Timeout_Flag (active-High).
+  0x40000000:         BUFGMUX_SEL. '0' or '1', depending on which MMCM we are.
+  0x80000000:         '0', as reserved
+  ```
+  
+- `ALARM_FLAG`:
+  ```
+  0x00: Sysmon OT Flag (active-High).
+  0x02: Sysmon V0 UV/OV (Active-High).
+  0x04: Sysmon VCCAUX UV/OV (Active-High).
+  0x08: Sysmon VCCINT UV/OV (Active-High).
+  0x16: Sysmon VCCIO_BRAM UV/OV (Active-High).
+  ```
+- `FPGA_STATUS`:
+  ```
+  0x00: Hashing_Enable (active-High).
+  0x02:  Hash_CLK_nReset (active-High).
+  ```
+  
+- `Golden_Nonce`: The 64-Bits Golden nonce.
+
+
+### UART info message:
+
+In case a `GET_READBACK_INFO` Command is requested, a 320-bits fixed length message from the RAM is sent in ASCII Format:
+  ```
+     X"41_6c_74_6f_56_55_39_70"                         -- [AltoVU9p]
+   & X"53_4c_44_54_76_30_2e_39"                         -- [SLDTv0.9]
+   & X"4f_6c_69_76_69_65_72_20_46_41_55_52_49_45_20_20" -- [Olivier FAURIE  ]
+   & X"30_34_2e_31_37_2e_32_33"                         -- [04.17.23]
+  ```
+This message is read by the Miner App when establishing connection, for verification and matching purpose.
 
 ## Project Pinout
 
