@@ -128,7 +128,7 @@ Simulation  shows a MMCMLock time up of ~12us:
 
    ![Clocking_ROM_DRP](https://github.com/user-attachments/assets/2dc73b7f-7b3a-4537-a8b0-a4dd0c949085)
 
-
+The [Clock](https://github.com/OlivierHK/FPGA_Monolithic_SHA3-Solidity_Miner_VU9p_600MHz/tree/main/src/PLL) folder contains instructions and C script to regenerate the ROM table and its formating.
    
 ## Sysmon specification
 
@@ -318,6 +318,8 @@ Best to build under Linux (faster) and with Vivado 2023.1
 4. Once Synthesised project opened, select "Tools/Run Tcl Sript" and open *Place_and_Opt.Tcl*.
 5. Wait...(up to 24Hours, depending on your configuration).
 6. Generated .bit file can be found in the root folder of the project.
+
+7. For Programming the QSPI Flash, the `.bin` need to be used and created by Vivado. this is a standard [vivado procedure](https://adaptivesupport.amd.com/s/question/0D52E00006hpkMZSAY/vivado-how-to-generate-a-bin-file?language=en_US).
 
 ## design Summary
 
